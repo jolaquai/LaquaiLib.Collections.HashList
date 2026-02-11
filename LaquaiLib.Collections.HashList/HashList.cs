@@ -100,7 +100,7 @@ public static class HashList
     } 
     #endregion
     
-    #region Non-concurrent
+    #region Concurrent
     /// <summary>
     /// Creates an implementation of <see cref="HashList{T}"/>.
     /// Optimizes for indexing and enumeration, whereas removal is O(n). Use <see cref="CreateConcurrent{T}(bool)"/> to specify whether to optimize for O(1) removal instead, which turns indexing into O(n).
@@ -239,6 +239,7 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
 
 internal sealed class DefaultListHashList<T>(int capacity, IEqualityComparer<T> equalityComparer) : HashList<T>
 {
+    private readonly IEqualityComparer<T> _comparer = equalityComparer ?? EqualityComparer<T>.Default;
     private readonly HashSet<T> _set = new HashSet<T>(equalityComparer ?? EqualityComparer<T>.Default);
     private readonly List<T> _list = new List<T>(capacity >= 1 ? capacity : HashList.DefaultCapacity);
 
@@ -253,7 +254,22 @@ internal sealed class DefaultListHashList<T>(int capacity, IEqualityComparer<T> 
             _list.Add(item);
         return result;
     }
-    public override bool Remove(T item) => _set.Remove(item) && _list.Remove(item);
+    public override bool Remove(T item)
+    {
+        if (!_set.Remove(item))
+            return false;
+
+        for (var i = 0; i < _list.Count; i++)
+        {
+            if (_comparer.Equals(_list[i], item))
+            {
+                _list.RemoveAt(i);
+                return true;
+            }
+        }
+
+        return true;
+    }
     public override void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
     public override bool Contains(T item) => _set.Contains(item);
     public override void Clear()

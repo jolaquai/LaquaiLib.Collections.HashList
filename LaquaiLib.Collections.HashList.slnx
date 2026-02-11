@@ -4,4 +4,5 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="LaquaiLib.Collections.HashList/LaquaiLib.Collections.HashList.csproj" />
+  <Project Path="LaquaiLib.Collections.HashList.Tests/LaquaiLib.Collections.HashList.Tests.csproj" />
 </Solution>
