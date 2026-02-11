@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <RootNamespace>LaquaiLib.Collections</RootNamespace>
+
+    <LangVersion>latest</LangVersion>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">True</GeneratePackageOnBuild>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Version>1.0.0</Version>
+
+    <PackageId>$(AssemblyName)</PackageId>
+    <PackageVersion>$(Version)</PackageVersion>
+    <PackageDescription>Provides a collection type that combines the properties of a list and a set, guaranteeing uniqueness of contained items while maintaining insertion order.</PackageDescription>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>unlicense</PackageLicenseExpression>
+    <PackageLicenseFile>..\LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>..\README.md</PackageReadmeFile>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/jolaquai/$(AssemblyName)</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="..\LICENSE;..\README.md" Pack="True" PackagePath="/" />
+  </ItemGroup>
+
+</Project>
