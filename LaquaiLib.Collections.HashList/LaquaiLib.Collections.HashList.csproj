@@ -30,6 +30,8 @@
 
   <ItemGroup>
       <None Include="..\LICENSE;..\README.md" Pack="True" PackagePath="/" />
+
+      <InternalsVisibleTo Include="LaquaiLib.Collections.HashList.Tests" />
   </ItemGroup>
 
 </Project>

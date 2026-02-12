@@ -368,7 +368,7 @@ public class ConcurrentHashListTests
                 foreach (var item in list)
                     count++;
                 // Snapshot enumeration means we get a consistent view
-                Assert.True(count >= 0);
+                Assert.InRange(count, 100, 200);
             }
         }, TestContext.Current.CancellationToken);
 

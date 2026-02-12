@@ -337,10 +337,8 @@ public class FactoryAndOptionsTests
     [Fact]
     public void Options_DefaultCapacity_MatchesLibraryDefault()
     {
-        // The library uses a default capacity of 4 internally.
-        // HashListOptions should default to the same value.
         var options = new HashListOptions<int>();
-        Assert.Equal(4, options.Capacity);
+        Assert.Equal(HashList.DefaultCapacity, options.Capacity);
     }
     #endregion
 

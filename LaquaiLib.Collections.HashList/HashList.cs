@@ -275,7 +275,7 @@ internal sealed class DefaultListHashList<T> : HashList<T>
             }
 
         Debug.Fail("Internal buffers were desynced");
-        return false;
+        throw new InvalidOperationException("Internal buffers were desynced.");
     }
     public override void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
     public override bool Contains(T item) => _set.Contains(item);
