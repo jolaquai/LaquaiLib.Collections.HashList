@@ -4,8 +4,8 @@ Implements a simple hash list, effectively a cross between some set data structu
 
 Right now, there's two strategies for the non-concurrent version which are not directly surfaced. Access them through the `HashList` static type which create instances of those strategies. They differ in which operation is more optimized: either indexing and enumeration or deletion. Insertion and `Contains` checks always offer set-like performance, but a choice must be made for `Remove`, `IndexOf` etc.
 
-- Specifying `bool optimizeForRemove: true` returns an impl optimized for `O(1)` removals, but with `O(n / 2)` indexing and enumeration.
-- Specifying `bool optimizeForRemove: false` (the default when using an overload of the factory method that doesn't have the parameter) returns an impl optimized for `O(1)` indexing and enumeration, but with `O(n)` removals.
+- Specifying `bool optimizeForRemove: true` returns an impl optimized for `O(1)` removals, but with `O(N / 2)` indexing and enumeration.
+- Specifying `bool optimizeForRemove: false` (the default when using an overload of the factory method that doesn't have the parameter) returns an impl optimized for `O(1)` indexing and enumeration, but with `O(N)` removals.
 
 Note that direct enumeration via `foreach` isn't affected as badly, merely differing by a few additional indirections through internal structures.
 
