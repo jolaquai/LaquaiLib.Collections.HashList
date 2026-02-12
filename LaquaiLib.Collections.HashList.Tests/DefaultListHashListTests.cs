@@ -350,7 +350,7 @@ public class DefaultListHashListTests
     }
 
     [Fact]
-    public void CustomComparer_Contains_UseComparer()
+    public void CustomComparer_Contains_UsesComparer()
     {
         var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase);
         list.Add("Hello");

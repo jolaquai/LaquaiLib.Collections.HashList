@@ -274,7 +274,7 @@ public class ConcurrentHashListTests
 
     #region Concurrent access
     [Fact]
-    public void ConcurrentReads_DoNotBlock()
+    public async Task ConcurrentReads_DoNotBlock()
     {
         using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
         for (var i = 0; i < 100; i++)
@@ -283,34 +283,32 @@ public class ConcurrentHashListTests
         var tasks = new Task<bool>[10];
         for (var i = 0; i < 10; i++)
         {
-            var index = i;
             tasks[i] = Task.Run(() =>
             {
                 for (var j = 0; j < 100; j++)
                 {
-                    var _ = list.Contains(j);
-                    var __ = list[j];
-                    var ___ = list.Count;
+                    _ = list.Contains(j);
+                    _ = list[j];
+                    _ = list.Count;
                 }
                 return true;
             });
         }
 
-        Task.WaitAll(tasks);
+        await Task.WhenAll(tasks);
         Assert.All(tasks, t => Assert.True(t.Result));
     }
 
     [Fact]
-    public void ConcurrentAddAndRead_NoExceptions()
+    public async Task ConcurrentAddAndRead_NoExceptions()
     {
         using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
-        var cts = new CancellationTokenSource();
 
         var writerTask = Task.Run(() =>
         {
             for (var i = 0; i < 1000; i++)
                 list.Add(i);
-        });
+        }, TestContext.Current.CancellationToken);
 
         var readerTask = Task.Run(() =>
         {
@@ -322,14 +320,14 @@ public class ConcurrentHashListTests
                     // just enumerate
                 }
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
-        Task.WaitAll(writerTask, readerTask);
+        await Task.WhenAll(writerTask, readerTask);
         Assert.Equal(1000, list.Count);
     }
 
     [Fact]
-    public void ConcurrentAddAndRemove_MaintainsConsistency()
+    public async Task ConcurrentAddAndRemove_MaintainsConsistency()
     {
         using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
 
@@ -338,17 +336,17 @@ public class ConcurrentHashListTests
         {
             for (var i = 0; i < 1000; i++)
                 list.Add(i);
-        });
+        }, TestContext.Current.CancellationToken);
 
-        addTask.Wait();
+        await addTask;
 
         var removeTask = Task.Run(() =>
         {
             for (var i = 0; i < 500; i++)
                 list.Remove(i);
-        });
+        }, TestContext.Current.CancellationToken);
 
-        removeTask.Wait();
+        await removeTask;
 
         Assert.Equal(500, list.Count);
         for (var i = 500; i < 1000; i++)
@@ -356,7 +354,7 @@ public class ConcurrentHashListTests
     }
 
     [Fact]
-    public void ConcurrentEnumeration_SafeWithMutation()
+    public async Task ConcurrentEnumeration_SafeWithMutation()
     {
         using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
         for (var i = 0; i < 100; i++)
@@ -372,15 +370,15 @@ public class ConcurrentHashListTests
                 // Snapshot enumeration means we get a consistent view
                 Assert.True(count >= 0);
             }
-        });
+        }, TestContext.Current.CancellationToken);
 
         var mutationTask = Task.Run(() =>
         {
             for (var i = 100; i < 200; i++)
                 list.Add(i);
-        });
+        }, TestContext.Current.CancellationToken);
 
-        Task.WaitAll(enumerationTask, mutationTask);
+        await Task.WhenAll(enumerationTask, mutationTask);
     }
     #endregion
 }

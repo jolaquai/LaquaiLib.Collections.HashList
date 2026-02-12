@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace LaquaiLib.Collections;
@@ -97,9 +98,9 @@ public static class HashList
             throw new ArgumentNullException(nameof(options));
 
         return Create(options.Capacity, options.EqualityComparer, options.OptimizeForRemove);
-    } 
+    }
     #endregion
-    
+
     #region Concurrent
     /// <summary>
     /// Creates an implementation of <see cref="HashList{T}"/>.
@@ -237,11 +238,18 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
-internal sealed class DefaultListHashList<T>(int capacity, IEqualityComparer<T> equalityComparer) : HashList<T>
+internal sealed class DefaultListHashList<T> : HashList<T>
 {
-    private readonly IEqualityComparer<T> _comparer = equalityComparer ?? EqualityComparer<T>.Default;
-    private readonly HashSet<T> _set = new HashSet<T>(equalityComparer ?? EqualityComparer<T>.Default);
-    private readonly List<T> _list = new List<T>(capacity >= 1 ? capacity : HashList.DefaultCapacity);
+    private readonly IEqualityComparer<T> _comparer;
+    private readonly HashSet<T> _set;
+    private readonly List<T> _list;
+
+    public DefaultListHashList(int capacity, IEqualityComparer<T> equalityComparer)
+    {
+        _comparer = equalityComparer ?? EqualityComparer<T>.Default;
+        _set = new HashSet<T>(_comparer);
+        _list = new List<T>(capacity >= 1 ? capacity : HashList.DefaultCapacity);
+    }
 
     public override int Count => _list.Count;
     public override bool IsReadOnly { get; }
@@ -260,15 +268,14 @@ internal sealed class DefaultListHashList<T>(int capacity, IEqualityComparer<T> 
             return false;
 
         for (var i = 0; i < _list.Count; i++)
-        {
             if (_comparer.Equals(_list[i], item))
             {
                 _list.RemoveAt(i);
                 return true;
             }
-        }
 
-        return true;
+        Debug.Fail("Internal buffers were desynced");
+        return false;
     }
     public override void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
     public override bool Contains(T item) => _set.Contains(item);

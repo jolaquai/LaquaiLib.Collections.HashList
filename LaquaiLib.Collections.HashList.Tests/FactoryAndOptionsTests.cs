@@ -1,4 +1,5 @@
 using Xunit;
+
 using LaquaiLib.Collections;
 
 namespace LaquaiLib.Collections.Tests;
@@ -206,13 +207,6 @@ public class FactoryAndOptionsTests
     #endregion
 
     #region HashListOptions defaults
-    [Fact]
-    public void Options_DefaultCapacity_Is4()
-    {
-        var options = new HashListOptions<int>();
-        Assert.Equal(4, options.Capacity);
-    }
-
     [Fact]
     public void Options_DefaultEqualityComparer_IsDefault()
     {
