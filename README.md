@@ -15,3 +15,5 @@ The **concurrent** variant is merely a wrapper for any of the above strategies s
 - `Mutate(Action<HashList<T>>)`: executes the passed delegate under a write lock, allowing compound operations that require atomicity.
 
 You should, however, think really well of why you're reaching for the concurrent variant. Concurrent writes make keeping track of insertion order meaningless since the order in which writers acquire the internal lock is non-deterministic. If writes are sufficiently rare, you might be better off with the non-concurrent variant, locking around writes yourself and avoiding all locking overhead on read paths. Even better, if you're building once and then never modifying again, choose the non-concurrent variant, then copy and store that (perhaps using a `ReadOnlyCollection<>` over that copy if you're sharing to unknown consumers).
+
+Contact me on Discord @ `eyeoftheenemy` or open an issue here if you have any questions, suggestions or want to contribute!
