@@ -21,7 +21,6 @@
     <PackageVersion>$(Version)</PackageVersion>
     <PackageDescription>Provides a collection type that combines the properties of a list and a set, guaranteeing uniqueness of contained items while maintaining insertion order.</PackageDescription>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageLicenseExpression>unlicense</PackageLicenseExpression>
     <PackageLicenseFile>..\LICENSE</PackageLicenseFile>
     <PackageReadmeFile>..\README.md</PackageReadmeFile>
 
@@ -31,6 +30,8 @@
 
   <ItemGroup>
       <None Include="..\LICENSE;..\README.md" Pack="True" PackagePath="/" />
+
+      <InternalsVisibleTo Include="LaquaiLib.Collections.HashList.Tests" />
   </ItemGroup>
 
 </Project>
