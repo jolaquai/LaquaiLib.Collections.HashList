@@ -49,38 +49,38 @@ public static class HashList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> Create<T>(int capacity, IEqualityComparer<T> comparer) => Create<T>(capacity, comparer, false);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> Create<T>(bool optimizeForRemove) => Create<T>(DefaultCapacity, EqualityComparer<T>.Default, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> with internal buffers pre-sized using <paramref name="capacity"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> with internal buffers pre-sized using <paramref name="capacity"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the internal buffers.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> Create<T>(int capacity, bool optimizeForRemove) => Create(capacity, EqualityComparer<T>.Default, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="comparer"/> for element equality, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="comparer"/> for element equality, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> implementation to use for comparing elements.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> Create<T>(IEqualityComparer<T> comparer, bool optimizeForRemove) => Create<T>(DefaultCapacity, comparer, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="capacity"/> and <paramref name="comparer"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="capacity"/> and <paramref name="comparer"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the internal buffers.</param>
     /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> implementation to use for comparing elements.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> Create<T>(int capacity, IEqualityComparer<T> comparer, bool optimizeForRemove) => optimizeForRemove ? new LinkedListHashList<T>(capacity, comparer) : new DefaultListHashList<T>(capacity, comparer);
@@ -139,38 +139,38 @@ public static class HashList
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> CreateConcurrent<T>(int capacity, IEqualityComparer<T> comparer) => CreateConcurrent<T>(capacity, comparer, false);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> CreateConcurrent<T>(bool optimizeForRemove) => CreateConcurrent<T>(DefaultCapacity, EqualityComparer<T>.Default, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> with internal buffers pre-sized using <paramref name="capacity"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> with internal buffers pre-sized using <paramref name="capacity"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the internal buffers.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> CreateConcurrent<T>(int capacity, bool optimizeForRemove) => CreateConcurrent(capacity, EqualityComparer<T>.Default, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="comparer"/> for element equality, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="comparer"/> for element equality, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> implementation to use for comparing elements.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> CreateConcurrent<T>(IEqualityComparer<T> comparer, bool optimizeForRemove) => CreateConcurrent<T>(DefaultCapacity, comparer, optimizeForRemove);
     /// <summary>
-    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="capacity"/> and <paramref name="comparer"/>, optionally optimizing for O(1) removal instead of O(N) indexing and enumeration, which becomes O(N) instead.
+    /// Creates an implementation of <see cref="HashList{T}"/> using the specified <paramref name="capacity"/> and <paramref name="comparer"/>, optionally optimizing for O(1) removal instead of indexing and enumeration, which become O(N) instead.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>
     /// <param name="capacity">The initial capacity of the internal buffers.</param>
     /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> implementation to use for comparing elements.</param>
-    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of O(N) indexing and enumeration.</param>
+    /// <param name="optimizeForRemove">Whether to optimize for O(1) removal instead of indexing and enumeration.</param>
     /// <returns>The created <see cref="HashList{T}"/> implementation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static HashList<T> CreateConcurrent<T>(int capacity, IEqualityComparer<T> comparer, bool optimizeForRemove) => new ConcurrentHashList<T>(optimizeForRemove ? new LinkedListHashList<T>(capacity, comparer) : new DefaultListHashList<T>(capacity, comparer));
