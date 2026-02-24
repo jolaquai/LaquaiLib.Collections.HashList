@@ -138,6 +138,82 @@ public class ConcurrentHashListTests
     }
     #endregion
 
+    #region InsertAt
+    [Fact]
+    public void InsertAt_DefaultListBacked_InsertsCorrectly()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
+        list.Add(1);
+        list.Add(3);
+        Assert.True(list.InsertAt(1, 2));
+        Assert.Equal(1, list[0]);
+        Assert.Equal(2, list[1]);
+        Assert.Equal(3, list[2]);
+    }
+
+    [Fact]
+    public void InsertAt_LinkedListBacked_InsertsCorrectly()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>(optimizeForRemove: true);
+        list.Add(1);
+        list.Add(3);
+        Assert.True(list.InsertAt(1, 2));
+        Assert.Equal(1, list[0]);
+        Assert.Equal(2, list[1]);
+        Assert.Equal(3, list[2]);
+    }
+
+    [Fact]
+    public void InsertAt_DuplicateItem_ReturnsFalse()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
+        list.Add(1);
+        Assert.False(list.InsertAt(0, 1));
+    }
+
+    [Fact]
+    public void InsertAt_OutOfRange_Throws()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertAt(-1, 1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertAt(1, 1));
+    }
+    #endregion
+
+    #region IndexOf
+    [Fact]
+    public void IndexOf_DefaultListBacked_ReturnsCorrectIndex()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
+        list.Add(10);
+        list.Add(20);
+        list.Add(30);
+        Assert.Equal(0, list.IndexOf(10));
+        Assert.Equal(1, list.IndexOf(20));
+        Assert.Equal(2, list.IndexOf(30));
+    }
+
+    [Fact]
+    public void IndexOf_LinkedListBacked_ReturnsCorrectIndex()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>(optimizeForRemove: true);
+        list.Add(10);
+        list.Add(20);
+        list.Add(30);
+        Assert.Equal(0, list.IndexOf(10));
+        Assert.Equal(1, list.IndexOf(20));
+        Assert.Equal(2, list.IndexOf(30));
+    }
+
+    [Fact]
+    public void IndexOf_NonExistingItem_ReturnsNegativeOne()
+    {
+        using var list = (ConcurrentHashList<int>)HashList.CreateConcurrent<int>();
+        list.Add(1);
+        Assert.Equal(-1, list.IndexOf(99));
+    }
+    #endregion
+
     #region Enumeration (snapshot behavior)
     [Fact]
     public void GetEnumerator_ReturnsSnapshot()

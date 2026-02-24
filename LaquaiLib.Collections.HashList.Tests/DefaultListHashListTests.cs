@@ -395,6 +395,195 @@ public class DefaultListHashListTests
     }
     #endregion
 
+    #region InsertAt
+    [Fact]
+    public void InsertAt_Beginning_ShiftsElements()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.InsertAt(0, 0));
+        Assert.Equal(0, list[0]);
+        Assert.Equal(1, list[1]);
+        Assert.Equal(2, list[2]);
+        Assert.Equal(3, list.Count);
+    }
+
+    [Fact]
+    public void InsertAt_Middle_ShiftsElements()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(3);
+        Assert.True(list.InsertAt(1, 2));
+        Assert.Equal(1, list[0]);
+        Assert.Equal(2, list[1]);
+        Assert.Equal(3, list[2]);
+    }
+
+    [Fact]
+    public void InsertAt_End_AppendsElement()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.InsertAt(2, 3));
+        Assert.Equal(1, list[0]);
+        Assert.Equal(2, list[1]);
+        Assert.Equal(3, list[2]);
+    }
+
+    [Fact]
+    public void InsertAt_EmptyList_AtZero_Works()
+    {
+        var list = Create<int>();
+        Assert.True(list.InsertAt(0, 42));
+        Assert.Equal(1, list.Count);
+        Assert.Equal(42, list[0]);
+    }
+
+    [Fact]
+    public void InsertAt_DuplicateItem_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.False(list.InsertAt(0, 1));
+        Assert.Equal(1, list.Count);
+    }
+
+    [Fact]
+    public void InsertAt_NegativeIndex_Throws()
+    {
+        var list = Create<int>();
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertAt(-1, 1));
+    }
+
+    [Fact]
+    public void InsertAt_IndexGreaterThanCount_Throws()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertAt(2, 2));
+    }
+
+    [Fact]
+    public void InsertAt_DuplicateItem_DoesNotThrowForOutOfRangeIndex()
+    {
+        // When item is a duplicate, the duplicate check happens after the range check,
+        // so an out-of-range index with a duplicate item should still throw
+        var list = Create<int>();
+        list.Add(1);
+        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertAt(5, 1));
+    }
+
+    [Fact]
+    public void InsertAt_MaintainsContainsConsistency()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(3);
+        list.InsertAt(1, 2);
+        Assert.True(list.Contains(1));
+        Assert.True(list.Contains(2));
+        Assert.True(list.Contains(3));
+    }
+
+    [Fact]
+    public void InsertAt_ThenRemove_Works()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(3);
+        list.InsertAt(1, 2);
+        list.Remove(2);
+        Assert.Equal(2, list.Count);
+        Assert.Equal(1, list[0]);
+        Assert.Equal(3, list[1]);
+    }
+    #endregion
+
+    #region IndexOf
+    [Fact]
+    public void IndexOf_ExistingItem_ReturnsCorrectIndex()
+    {
+        var list = Create<int>();
+        list.Add(10);
+        list.Add(20);
+        list.Add(30);
+        Assert.Equal(0, list.IndexOf(10));
+        Assert.Equal(1, list.IndexOf(20));
+        Assert.Equal(2, list.IndexOf(30));
+    }
+
+    [Fact]
+    public void IndexOf_NonExistingItem_ReturnsNegativeOne()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.Equal(-1, list.IndexOf(99));
+    }
+
+    [Fact]
+    public void IndexOf_EmptyList_ReturnsNegativeOne()
+    {
+        var list = Create<int>();
+        Assert.Equal(-1, list.IndexOf(1));
+    }
+
+    [Fact]
+    public void IndexOf_AfterRemoval_ReturnsNegativeOne()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Remove(1);
+        Assert.Equal(-1, list.IndexOf(1));
+    }
+
+    [Fact]
+    public void IndexOf_AfterRemoval_UpdatesIndices()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        list.Remove(1);
+        Assert.Equal(0, list.IndexOf(2));
+        Assert.Equal(1, list.IndexOf(3));
+    }
+
+    [Fact]
+    public void IndexOf_WithCustomComparer_UsesComparer()
+    {
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase);
+        list.Add("Hello");
+        list.Add("World");
+        Assert.Equal(0, list.IndexOf("hello"));
+        Assert.Equal(1, list.IndexOf("WORLD"));
+    }
+
+    [Fact]
+    public void IndexOf_AfterInsertAt_ReturnsCorrectIndex()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(3);
+        list.InsertAt(1, 2);
+        Assert.Equal(0, list.IndexOf(1));
+        Assert.Equal(1, list.IndexOf(2));
+        Assert.Equal(2, list.IndexOf(3));
+    }
+
+    [Fact]
+    public void IndexOf_NullItem_WorksForReferenceType()
+    {
+        var list = Create<string>();
+        list.Add("a");
+        list.Add(null);
+        list.Add("b");
+        Assert.Equal(1, list.IndexOf(null));
+    }
+    #endregion
+
     #region Large collection
     [Fact]
     public void LargeCollection_MaintainsInsertionOrder()

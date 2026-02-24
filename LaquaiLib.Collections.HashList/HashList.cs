@@ -234,6 +234,21 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
     public abstract T this[int index] { get; }
     #endregion
 
+    /// <summary>
+    /// Inserts <paramref name="item"/> at the specified <paramref name="index"/> in the list if it is not already present.
+    /// </summary>
+    /// <param name="index">The zero-based index at which to insert the item. Must be between 0 and <see cref="Count"/> (inclusive).</param>
+    /// <param name="item">The item to insert.</param>
+    /// <returns><see langword="true"/> if <paramref name="item"/> was not present and was inserted; <see langword="false"/> if it was already present.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="index"/> is less than 0 or greater than <see cref="Count"/>.</exception>
+    public abstract bool InsertAt(int index, T item);
+    /// <summary>
+    /// Returns the zero-based index of the first occurrence of <paramref name="item"/> in the list, or -1 if it is not present.
+    /// </summary>
+    /// <param name="item">The item to locate.</param>
+    /// <returns>The zero-based index of <paramref name="item"/> if found; otherwise, -1.</returns>
+    public abstract int IndexOf(T item);
+
     public abstract IEnumerator<T> GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
@@ -278,6 +293,29 @@ internal sealed class DefaultListHashList<T> : HashList<T>
         throw new InvalidOperationException("Internal buffers were desynced.");
     }
     public override void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
+    public override bool InsertAt(int index, T item)
+    {
+        if (index < 0 || index > _list.Count)
+            throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be within the bounds of the list or equal to Count for appending.");
+
+        if (!_set.Add(item))
+            return false;
+
+        _list.Insert(index, item);
+        return true;
+    }
+    public override int IndexOf(T item)
+    {
+        if (!_set.Contains(item))
+            return -1;
+
+        for (var i = 0; i < _list.Count; i++)
+            if (_comparer.Equals(_list[i], item))
+                return i;
+
+        Debug.Fail("Internal buffers were desynced");
+        throw new InvalidOperationException("Internal buffers were desynced.");
+    }
     public override bool Contains(T item) => _set.Contains(item);
     public override void Clear()
     {
@@ -337,6 +375,56 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         _map.Remove(item);
         _list.Remove(node);
         return true;
+    }
+    public override bool InsertAt(int index, T item)
+    {
+        if (index < 0 || index > _map.Count)
+            throw new ArgumentOutOfRangeException(nameof(index), index, "Index must be within the bounds of the list or equal to Count for appending.");
+
+        if (_map.ContainsKey(item))
+            return false;
+
+        if (index == _map.Count)
+        {
+            _map[item] = _list.AddLast(item);
+        }
+        else if (index == 0)
+        {
+            _map[item] = _list.AddFirst(item);
+        }
+        else
+        {
+            // Navigate to the node at the target index, then insert before it
+            LinkedListNode<T> nodeAtIndex;
+            if (index > _map.Count >>> 1)
+            {
+                nodeAtIndex = _list.Last;
+                for (var i = _map.Count - 1; i > index; i--)
+                    nodeAtIndex = nodeAtIndex.Previous;
+            }
+            else
+            {
+                nodeAtIndex = _list.First;
+                for (var i = 0; i < index; i++)
+                    nodeAtIndex = nodeAtIndex.Next;
+            }
+            _map[item] = _list.AddBefore(nodeAtIndex, item);
+        }
+        return true;
+    }
+    public override int IndexOf(T item)
+    {
+        if (!_map.ContainsKey(item))
+            return -1;
+
+        var comparer = _map.Comparer;
+        var node = _list.First;
+        for (var i = 0; node is not null; i++, node = node.Next)
+            if (comparer.Equals(node.Value, item))
+                return i;
+
+        Debug.Fail("Internal buffers were desynced");
+        throw new InvalidOperationException("Internal buffers were desynced.");
     }
     public override bool Contains(T item) => _map.ContainsKey(item);
     public override void Clear()

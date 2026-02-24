@@ -107,6 +107,31 @@ public sealed class ConcurrentHashList<T> : HashList<T>, IDisposable
         }
     }
 
+    public override bool InsertAt(int index, T item)
+    {
+        _rwls.EnterWriteLock();
+        try
+        {
+            return _inner.InsertAt(index, item);
+        }
+        finally
+        {
+            _rwls.ExitWriteLock();
+        }
+    }
+    public override int IndexOf(T item)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.IndexOf(item);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+
     public override IEnumerator<T> GetEnumerator()
     {
         T[] snapshot;
