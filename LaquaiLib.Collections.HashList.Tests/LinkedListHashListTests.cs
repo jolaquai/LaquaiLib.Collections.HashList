@@ -42,7 +42,7 @@ public class LinkedListHashListTests
         ICollection<int> list = Create<int>();
         list.Add(1);
         list.Add(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
     #endregion
 
@@ -69,7 +69,7 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         list.Remove(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class LinkedListHashListTests
         var list = Create<int>();
         list.Add(1);
         list.Remove(1);
-        Assert.False(list.Contains(1));
+        Assert.DoesNotContain(1, list);
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Remove(1);
         Assert.True(list.Add(1));
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -134,14 +134,14 @@ public class LinkedListHashListTests
     {
         var list = Create<int>();
         list.Add(42);
-        Assert.True(list.Contains(42));
+        Assert.Contains(42, list);
     }
 
     [Fact]
     public void Contains_NonExistingItem_ReturnsFalse()
     {
         var list = Create<int>();
-        Assert.False(list.Contains(42));
+        Assert.DoesNotContain(42, list);
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class LinkedListHashListTests
         var list = Create<int>();
         list.Add(1);
         list.Clear();
-        Assert.False(list.Contains(1));
+        Assert.DoesNotContain(1, list);
     }
     #endregion
 
@@ -162,7 +162,7 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         list.Clear();
-        Assert.Equal(0, list.Count);
+        Assert.Empty(list);
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class LinkedListHashListTests
     public void Count_EmptyList_ReturnsZero()
     {
         var list = Create<int>();
-        Assert.Equal(0, list.Count);
+        Assert.Empty(list);
     }
 
     [Fact]
@@ -189,7 +189,7 @@ public class LinkedListHashListTests
         var list = Create<int>();
         list.Add(1);
         list.Add(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
     #endregion
 
@@ -343,7 +343,7 @@ public class LinkedListHashListTests
         var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
         list.Add("Hello");
         Assert.False(list.Add("hello"));
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -351,7 +351,9 @@ public class LinkedListHashListTests
     {
         var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
         list.Add("Hello");
+#pragma warning disable xUnit2017 // Intentionally testing HashList.Contains with custom comparer
         Assert.True(list.Contains("hello"));
+#pragma warning restore xUnit2017
     }
 
     [Fact]
@@ -360,7 +362,7 @@ public class LinkedListHashListTests
         var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
         list.Add("Hello");
         Assert.True(list.Remove("hello"));
-        Assert.Equal(0, list.Count);
+        Assert.Empty(list);
     }
     #endregion
 
@@ -407,7 +409,7 @@ public class LinkedListHashListTests
     {
         var list = Create<int>();
         Assert.True(list.InsertAt(0, 42));
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
         Assert.Equal(42, list[0]);
     }
 
@@ -417,7 +419,7 @@ public class LinkedListHashListTests
         var list = Create<int>();
         list.Add(1);
         Assert.False(list.InsertAt(0, 1));
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -450,9 +452,9 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(3);
         list.InsertAt(1, 2);
-        Assert.True(list.Contains(1));
-        Assert.True(list.Contains(2));
-        Assert.True(list.Contains(3));
+        Assert.Contains(1, list);
+        Assert.Contains(2, list);
+        Assert.Contains(3, list);
     }
 
     [Fact]
