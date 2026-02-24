@@ -1,4 +1,4 @@
-# `LaquaiLib.HashList`
+# `LaquaiLib.Collections.HashList`
 
 Implements a simple hash list, effectively a cross between some set data structure (to guarantee uniqueness of elements) and a list (to keep track of insertion order).
 
