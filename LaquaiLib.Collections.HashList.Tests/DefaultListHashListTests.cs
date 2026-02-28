@@ -469,7 +469,7 @@ public class DefaultListHashListTests
     }
 
     [Fact]
-    public void InsertAt_DuplicateItem_DoesNotThrowForOutOfRangeIndex()
+    public void InsertAt_DuplicateItem_ThrowsArgumentOutOfRangeForOutOfRangeIndex()
     {
         // When item is a duplicate, the duplicate check happens after the range check,
         // so an out-of-range index with a duplicate item should still throw
@@ -583,6 +583,266 @@ public class DefaultListHashListTests
         list.Add(null);
         list.Add("b");
         Assert.Equal(1, list.IndexOf(null));
+    }
+    #endregion
+
+    #region IReadOnlySet
+    [Fact]
+    public void IsSubsetOf_EmptySet_ReturnsTrueForAny()
+    {
+        var list = Create<int>();
+        Assert.True(list.IsSubsetOf(new[] { 1, 2, 3 }));
+        Assert.True(list.IsSubsetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsSubsetOf_ProperSubset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSubsetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsSubsetOf_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSubsetOf_Superset_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.False(list.IsSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EmptySet_NonEmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        Assert.True(list.IsProperSubsetOf(new[] { 1 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EmptySet_EmptyOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.IsProperSubsetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_ProperSubset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsProperSubsetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EqualSets_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_Superset_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.False(list.IsProperSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_EmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.True(list.IsSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsSupersetOf_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_ProperSuperset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.IsSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_SubsetOfOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_EmptySet_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.IsProperSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_NonEmptySet_SupersetOfEmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.True(list.IsProperSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ProperSuperset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.IsProperSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_EqualSets_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_SubsetOfOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void Overlaps_WithCommonElement_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.Overlaps(new[] { 2, 3 }));
+    }
+
+    [Fact]
+    public void Overlaps_NoCommonElements_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.Overlaps(new[] { 3, 4 }));
+    }
+
+    [Fact]
+    public void Overlaps_EmptyList_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.Overlaps(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void Overlaps_EmptyOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.False(list.Overlaps(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void SetEquals_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.SetEquals(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentOrder_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.SetEquals(new[] { 3, 1, 2 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentElements_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.SetEquals(new[] { 1, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentSizes_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.SetEquals(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_EmptyBoth_ReturnsTrue()
+    {
+        var list = Create<int>();
+        Assert.True(list.SetEquals(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void SetEquals_WithDuplicatesInOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.SetEquals(new[] { 1, 1, 2, 2 }));
+    }
+
+    [Fact]
+    public void IReadOnlySet_Interface_Works()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        IReadOnlySet<int> roSet = list;
+        Assert.True(roSet.IsSubsetOf(new[] { 1, 2, 3, 4 }));
+        Assert.True(roSet.IsSupersetOf(new[] { 1, 2 }));
+        Assert.True(roSet.SetEquals(new[] { 1, 2, 3 }));
+        Assert.True(roSet.Overlaps(new[] { 3, 4 }));
     }
     #endregion
 

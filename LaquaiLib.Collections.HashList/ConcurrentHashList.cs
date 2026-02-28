@@ -147,6 +147,81 @@ public sealed class ConcurrentHashList<T> : HashList<T>, IDisposable
         }
         return ((IEnumerable<T>)snapshot).GetEnumerator();
     }
+
+#if NET5_0_OR_GREATER
+    public override bool IsProperSubsetOf(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.IsProperSubsetOf(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+    public override bool IsProperSupersetOf(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.IsProperSupersetOf(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+    public override bool IsSubsetOf(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.IsSubsetOf(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+    public override bool IsSupersetOf(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.IsSupersetOf(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+    public override bool Overlaps(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.Overlaps(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+    public override bool SetEquals(IEnumerable<T> other)
+    {
+        _rwls.EnterReadLock();
+        try
+        {
+            return _inner.SetEquals(other);
+        }
+        finally
+        {
+            _rwls.ExitReadLock();
+        }
+    }
+#endif
     #endregion
 
     #region Extra functionality

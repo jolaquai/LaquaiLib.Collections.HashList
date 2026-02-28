@@ -438,7 +438,7 @@ public class LinkedListHashListTests
     }
 
     [Fact]
-    public void InsertAt_DuplicateItem_DoesNotThrowForOutOfRangeIndex()
+    public void InsertAt_DuplicateItem_ThrowsArgumentOutOfRangeForOutOfRangeIndex()
     {
         var list = Create<int>();
         list.Add(1);
@@ -567,6 +567,367 @@ public class LinkedListHashListTests
             list.Add(i);
         for (var i = 0; i < 100; i++)
             Assert.Equal(i, list.IndexOf(i));
+    }
+    #endregion
+
+    #region IReadOnlySet
+    [Fact]
+    public void IsSubsetOf_EmptySet_ReturnsTrueForAny()
+    {
+        var list = Create<int>();
+        Assert.True(list.IsSubsetOf(new[] { 1, 2, 3 }));
+        Assert.True(list.IsSubsetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsSubsetOf_ProperSubset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSubsetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsSubsetOf_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSubsetOf_Superset_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.False(list.IsSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSubsetOf_ViaIReadOnlySet_ReturnsTrue()
+    {
+        // Exercises the IReadOnlySet<T> fast path in LinkedListHashList.IsSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IReadOnlySet<int> other = new HashSet<int>([1, 2, 3]);
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsSubsetOf_ViaEnumerable_ReturnsTrue()
+    {
+        // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IEnumerable<int> other = new List<int> { 1, 2, 3 };
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EmptySet_NonEmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        Assert.True(list.IsProperSubsetOf(new[] { 1 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EmptySet_EmptyOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.IsProperSubsetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_ProperSubset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsProperSubsetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_EqualSets_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_Superset_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.False(list.IsProperSubsetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_ViaIReadOnlySet_ReturnsTrue()
+    {
+        // Exercises the IReadOnlySet<T> fast path in LinkedListHashList.IsProperSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IReadOnlySet<int> other = new HashSet<int>([1, 2, 3]);
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_ViaEnumerable_ReturnsTrue()
+    {
+        // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsProperSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IEnumerable<int> other = new List<int> { 1, 2, 3 };
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsSupersetOf_EmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.True(list.IsSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsSupersetOf_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.IsSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_ProperSuperset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.IsSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_SubsetOfOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_EmptySet_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.IsProperSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_NonEmptySet_SupersetOfEmptyOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.True(list.IsProperSupersetOf(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ProperSuperset_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.IsProperSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_EqualSets_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSupersetOf(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_SubsetOfOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.IsProperSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ViaIReadOnlySet_ReturnsTrue()
+    {
+        // Exercises the IReadOnlySet<T> fast path in LinkedListHashList.IsProperSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        IReadOnlySet<int> other = new HashSet<int>([1, 2]);
+        Assert.True(list.IsProperSupersetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ViaEnumerable_ReturnsTrue()
+    {
+        // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsProperSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        IEnumerable<int> other = new List<int> { 1, 2 };
+        Assert.True(list.IsProperSupersetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ViaEnumerable_WithNonMember_ReturnsFalse()
+    {
+        // Exercises the early-return branch in the IEnumerable<T> fallback of IsProperSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IEnumerable<int> other = new List<int> { 1, 99 };
+        Assert.False(list.IsProperSupersetOf(other));
+    }
+
+    [Fact]
+    public void Overlaps_WithCommonElement_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.Overlaps(new[] { 2, 3 }));
+    }
+
+    [Fact]
+    public void Overlaps_NoCommonElements_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.Overlaps(new[] { 3, 4 }));
+    }
+
+    [Fact]
+    public void Overlaps_EmptyList_ReturnsFalse()
+    {
+        var list = Create<int>();
+        Assert.False(list.Overlaps(new[] { 1, 2 }));
+    }
+
+    [Fact]
+    public void Overlaps_EmptyOther_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        Assert.False(list.Overlaps(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void SetEquals_EqualSets_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.SetEquals(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentOrder_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        Assert.True(list.SetEquals(new[] { 3, 1, 2 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentElements_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.SetEquals(new[] { 1, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_DifferentSizes_ReturnsFalse()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.False(list.SetEquals(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void SetEquals_EmptyBoth_ReturnsTrue()
+    {
+        var list = Create<int>();
+        Assert.True(list.SetEquals(Array.Empty<int>()));
+    }
+
+    [Fact]
+    public void SetEquals_WithDuplicatesInOther_ReturnsTrue()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        Assert.True(list.SetEquals(new[] { 1, 1, 2, 2 }));
+    }
+
+    [Fact]
+    public void SetEquals_ViaIReadOnlySet_ReturnsTrue()
+    {
+        // Exercises the IReadOnlySet<T> fast path in LinkedListHashList.SetEquals
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IReadOnlySet<int> other = new HashSet<int>([1, 2]);
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void SetEquals_ViaEnumerable_ReturnsTrue()
+    {
+        // Exercises the IEnumerable<T> fallback path in LinkedListHashList.SetEquals
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        IEnumerable<int> other = new List<int> { 1, 2 };
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void IReadOnlySet_Interface_Works()
+    {
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        IReadOnlySet<int> roSet = list;
+        Assert.True(roSet.IsSubsetOf(new[] { 1, 2, 3, 4 }));
+        Assert.True(roSet.IsSupersetOf(new[] { 1, 2 }));
+        Assert.True(roSet.SetEquals(new[] { 1, 2, 3 }));
+        Assert.True(roSet.Overlaps(new[] { 3, 4 }));
     }
     #endregion
 

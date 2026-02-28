@@ -218,6 +218,9 @@ public sealed class HashListOptions<T>
 /// </summary>
 /// <typeparam name="T">The type of elements in the list.</typeparam>
 public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
+#if NET5_0_OR_GREATER
+    , IReadOnlySet<T>
+#endif
 {
     #region ICollection<> impl
     public abstract bool Add(T item);
@@ -233,6 +236,18 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
     #region IReadOnlyList<> impl
     public abstract T this[int index] { get; }
     #endregion
+
+#if NET5_0_OR_GREATER
+    #region IReadOnlySet<> impl
+
+    public abstract bool IsProperSubsetOf(IEnumerable<T> other);
+    public abstract bool IsProperSupersetOf(IEnumerable<T> other);
+    public abstract bool IsSubsetOf(IEnumerable<T> other);
+    public abstract bool IsSupersetOf(IEnumerable<T> other);
+    public abstract bool Overlaps(IEnumerable<T> other);
+    public abstract bool SetEquals(IEnumerable<T> other);
+    #endregion
+#endif
 
     /// <summary>
     /// Inserts <paramref name="item"/> at the specified <paramref name="index"/> in the list if it is not already present.
@@ -301,7 +316,15 @@ internal sealed class DefaultListHashList<T> : HashList<T>
         if (!_set.Add(item))
             return false;
 
-        _list.Insert(index, item);
+        try
+        {
+            _list.Insert(index, item);
+        }
+        catch
+        {
+            _set.Remove(item);
+            throw;
+        }
         return true;
     }
     public override int IndexOf(T item)
@@ -323,6 +346,15 @@ internal sealed class DefaultListHashList<T> : HashList<T>
         _list.Clear();
     }
     public override IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+
+#if NET5_0_OR_GREATER
+    public override bool IsProperSubsetOf(IEnumerable<T> other) => _set.IsProperSubsetOf(other);
+    public override bool IsProperSupersetOf(IEnumerable<T> other) => _set.IsProperSupersetOf(other);
+    public override bool IsSubsetOf(IEnumerable<T> other) => _set.IsSubsetOf(other);
+    public override bool IsSupersetOf(IEnumerable<T> other) => _set.IsSupersetOf(other);
+    public override bool Overlaps(IEnumerable<T> other) => _set.Overlaps(other);
+    public override bool SetEquals(IEnumerable<T> other) => _set.SetEquals(other);
+#endif
 }
 
 internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> equalityComparer) : HashList<T>
@@ -384,14 +416,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (_map.ContainsKey(item))
             return false;
 
+        LinkedListNode<T> node;
+
         if (index == _map.Count)
-        {
-            _map[item] = _list.AddLast(item);
-        }
+            node = _list.AddLast(item);
         else if (index == 0)
-        {
-            _map[item] = _list.AddFirst(item);
-        }
+            node = _list.AddFirst(item);
         else
         {
             // Navigate to the node at the target index, then insert before it
@@ -408,7 +438,17 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
                 for (var i = 0; i < index; i++)
                     nodeAtIndex = nodeAtIndex.Next;
             }
-            _map[item] = _list.AddBefore(nodeAtIndex, item);
+            node = _list.AddBefore(nodeAtIndex, item);
+        }
+
+        try
+        {
+            _map[item] = node;
+        }
+        catch
+        {
+            _list.Remove(node);
+            throw;
         }
         return true;
     }
@@ -433,4 +473,63 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         _list.Clear();
     }
     public override IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+
+#if NET5_0_OR_GREATER
+    public override bool IsProperSubsetOf(IEnumerable<T> other)
+    {
+        if (other is IReadOnlySet<T> ros)
+            return _map.Count < ros.Count && _map.Keys.All(ros.Contains);
+        if (_map.Count == 0)
+            return other.Any();
+        var s = new HashSet<T>(other, _map.Comparer);
+        return _map.Count < s.Count && _map.Keys.All(s.Contains);
+    }
+    public override bool IsProperSupersetOf(IEnumerable<T> other)
+    {
+        if (_map.Count == 0)
+            return false;
+        if (other is IReadOnlySet<T> ros)
+            return ros.Count < _map.Count && ros.All(i => _map.ContainsKey(i));
+        var seen = new HashSet<T>(_map.Comparer);
+        foreach (var item in other)
+        {
+            if (!_map.ContainsKey(item))
+                return false;
+            seen.Add(item);
+        }
+        return _map.Count > seen.Count;
+    }
+    public override bool IsSubsetOf(IEnumerable<T> other)
+    {
+        if (_map.Count == 0)
+            return true;
+        if (other is IReadOnlySet<T> ros)
+            return _map.Keys.All(ros.Contains);
+        var s = new HashSet<T>(other, _map.Comparer);
+        return _map.Keys.All(s.Contains);
+    }
+    public override bool IsSupersetOf(IEnumerable<T> other)
+    {
+        foreach (var item in other)
+            if (!_map.ContainsKey(item))
+                return false;
+        return true;
+    }
+    public override bool Overlaps(IEnumerable<T> other)
+    {
+        if (_map.Count == 0)
+            return false;
+        foreach (var item in other)
+            if (_map.ContainsKey(item))
+                return true;
+        return false;
+    }
+    public override bool SetEquals(IEnumerable<T> other)
+    {
+        if (other is IReadOnlySet<T> ros)
+            return ros.Count == _map.Count && _map.Keys.All(ros.Contains);
+        var s = new HashSet<T>(other, _map.Comparer);
+        return s.Count == _map.Count && _map.Keys.All(s.Contains);
+    }
+#endif
 }
