@@ -2,6 +2,10 @@ using Xunit;
 
 using LaquaiLib.Collections;
 
+// All Assert.True(list.Contains(...)) calls in this file intentionally test
+// that factory methods correctly pass custom comparers to the underlying HashList.
+#pragma warning disable xUnit2017
+
 namespace LaquaiLib.Collections.Tests;
 
 /// <summary>
@@ -23,7 +27,7 @@ public class FactoryAndOptionsTests
     {
         var list = HashList.Create<int>(16);
         list.Add(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -65,7 +69,7 @@ public class FactoryAndOptionsTests
     {
         var list = HashList.Create<int>(32, optimizeForRemove: true);
         list.Add(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -82,7 +86,7 @@ public class FactoryAndOptionsTests
         var list = HashList.Create<string>(16, StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
         list.Add("Test");
         Assert.True(list.Contains("TEST"));
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
@@ -120,7 +124,7 @@ public class FactoryAndOptionsTests
         var list = HashList.CreateConcurrent<int>(16);
         Assert.IsType<ConcurrentHashList<int>>(list);
         list.Add(1);
-        Assert.Equal(1, list.Count);
+        Assert.Single(list);
     }
 
     [Fact]
