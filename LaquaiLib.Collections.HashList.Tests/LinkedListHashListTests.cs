@@ -641,6 +641,19 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsSubsetOf_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" and "Hello" are equal under OrdinalIgnoreCase, so IsSubsetOf must return true.
+        // The ISet<T>/IReadOnlySet<T> fast paths previously called other.Contains(), using the
+        // wrong comparer and returning false. Verify the fix enforces the list's own comparer.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello", "world" };
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
     public void IsProperSubsetOf_EmptySet_NonEmptyOther_ReturnsTrue()
     {
         var list = Create<int>();
@@ -712,6 +725,17 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         IEnumerable<int> other = new List<int> { 1, 2, 3 };
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" ∈ other as "Hello" under OrdinalIgnoreCase, so IsProperSubsetOf must return true.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello", "world" };
         Assert.True(list.IsProperSubsetOf(other));
     }
 
@@ -981,6 +1005,17 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         IEnumerable<int> other = new List<int> { 1, 2 };
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void SetEquals_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" == "Hello" under OrdinalIgnoreCase, so SetEquals must return true.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello" };
         Assert.True(list.SetEquals(other));
     }
 

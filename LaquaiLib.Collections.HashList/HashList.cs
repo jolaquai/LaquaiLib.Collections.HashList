@@ -474,14 +474,22 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
+        // Use Count for an early-out only; element membership must use _map.Comparer (via materialization)
 #if NET5_0_OR_GREATER
         if (other is IReadOnlySet<T> ros)
-            return _map.Count < ros.Count && _map.Keys.All(ros.Contains);
+        {
+            if (ros.Count <= _map.Count) return false;
+        }
+        else
 #endif
         if (other is ISet<T> set)
-            return _map.Count < set.Count && _map.Keys.All(set.Contains);
-        if (_map.Count == 0)
+        {
+            if (set.Count <= _map.Count) return false;
+        }
+        else if (_map.Count == 0)
+        {
             return other.Any();
+        }
         var s = new HashSet<T>(other, _map.Comparer);
         return _map.Count < s.Count && _map.Keys.All(s.Contains);
     }
@@ -514,12 +522,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
 
         if (_map.Count == 0)
             return true;
+        // Use Count for an early-out only; element membership must use _map.Comparer (via materialization)
 #if NET5_0_OR_GREATER
-        if (other is IReadOnlySet<T> ros)
-            return _map.Keys.All(ros.Contains);
+        if (other is IReadOnlySet<T> ros && ros.Count < _map.Count) return false;
+        else
 #endif
-        if (other is ISet<T> set)
-            return _map.Keys.All(set.Contains);
+        if (other is ISet<T> set && set.Count < _map.Count) return false;
         var s = new HashSet<T>(other, _map.Comparer);
         return _map.Keys.All(s.Contains);
     }
@@ -556,12 +564,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
+        // Use Count for an early-out only; element membership must use _map.Comparer (via materialization)
 #if NET5_0_OR_GREATER
-        if (other is IReadOnlySet<T> ros)
-            return ros.Count == _map.Count && _map.Keys.All(ros.Contains);
+        if (other is IReadOnlySet<T> ros && ros.Count != _map.Count) return false;
+        else
 #endif
-        if (other is ISet<T> set)
-            return set.Count == _map.Count && _map.Keys.All(set.Contains);
+        if (other is ISet<T> set && set.Count != _map.Count) return false;
         var s = new HashSet<T>(other, _map.Comparer);
         return s.Count == _map.Count && _map.Keys.All(s.Contains);
     }
