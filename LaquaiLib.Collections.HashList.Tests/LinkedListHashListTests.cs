@@ -1020,6 +1020,29 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsSupersetOf_MismatchedComparer_CountInflatedByDuplicates_ReturnsTrue()
+    {
+        // OrdinalIgnoreCase list {"hello"} should be superset of Ordinal SortedSet {"hello","Hello"}
+        // because under OrdinalIgnoreCase both "hello" and "Hello" are contained
+        var hashList = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        hashList.Add("hello");
+        // SortedSet uses default Ordinal comparer, so "hello" != "Hello" → Count=2
+        var other = new SortedSet<string> { "hello", "Hello" };
+        Assert.True(hashList.IsSupersetOf(other));
+    }
+
+    [Fact]
+    public void SetEquals_MismatchedComparer_DuplicatesInOther_ReturnsTrue()
+    {
+        // OrdinalIgnoreCase list {"hello"} should equal Ordinal SortedSet {"hello","Hello"}
+        // because under OrdinalIgnoreCase, both collapse to the same element
+        var hashList = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        hashList.Add("hello");
+        var other = new SortedSet<string> { "hello", "Hello" };
+        Assert.True(hashList.SetEquals(other));
+    }
+
+    [Fact]
     public void IReadOnlySet_Interface_Works()
     {
         var list = Create<int>();

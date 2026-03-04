@@ -479,12 +479,14 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is IReadOnlySet<T> ros)
         {
             if (ros.Count <= _map.Count) return false;
+            if (_map.Count == 0) return true;
         }
         else
 #endif
         if (other is ISet<T> set)
         {
             if (set.Count <= _map.Count) return false;
+            if (_map.Count == 0) return true;
         }
         else if (_map.Count == 0)
         {
@@ -536,12 +538,6 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
-#if NET5_0_OR_GREATER
-        if (other is IReadOnlySet<T> ros && ros.Count > _map.Count)
-            return false;
-#endif
-        if (other is ISet<T> set && set.Count > _map.Count)
-            return false;
         foreach (var item in other)
             if (!_map.ContainsKey(item))
                 return false;
@@ -564,12 +560,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
-        // Use Count for an early-out only; element membership must use _map.Comparer (via materialization)
+        // Use Count for a lower-bound early-out only; element membership must use _map.Comparer (via materialization)
 #if NET5_0_OR_GREATER
-        if (other is IReadOnlySet<T> ros && ros.Count != _map.Count) return false;
+        if (other is IReadOnlySet<T> ros && ros.Count < _map.Count) return false;
         else
 #endif
-        if (other is ISet<T> set && set.Count != _map.Count) return false;
+        if (other is ISet<T> set && set.Count < _map.Count) return false;
         var s = new HashSet<T>(other, _map.Comparer);
         return s.Count == _map.Count && _map.Keys.All(s.Contains);
     }
