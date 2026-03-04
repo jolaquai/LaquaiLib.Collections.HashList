@@ -619,6 +619,17 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsSubsetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
     public void IsSubsetOf_ViaEnumerable_ReturnsTrue()
     {
         // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsSubsetOf
@@ -683,6 +694,17 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsProperSubsetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsProperSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
     public void IsProperSubsetOf_ViaEnumerable_ReturnsTrue()
     {
         // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsProperSubsetOf
@@ -730,6 +752,29 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsSupersetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
+        Assert.True(list.IsSupersetOf(other));
+    }
+
+    [Fact]
+    public void IsSupersetOf_ViaISet_CountShortCircuit_ReturnsFalse()
+    {
+        // Exercises the ISet<T> count short-circuit in LinkedListHashList.IsSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.False(list.IsSupersetOf(other));
+    }
+
+    [Fact]
     public void IsProperSupersetOf_EmptySet_ReturnsFalse()
     {
         var list = Create<int>();
@@ -770,6 +815,18 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         Assert.False(list.IsProperSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsProperSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
+        Assert.True(list.IsProperSupersetOf(other));
     }
 
     [Fact]
@@ -902,6 +959,17 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         IReadOnlySet<int> other = new HashSet<int>([1, 2]);
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void SetEquals_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.SetEquals
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
         Assert.True(list.SetEquals(other));
     }
 

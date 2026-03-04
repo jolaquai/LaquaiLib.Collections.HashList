@@ -148,7 +148,6 @@ public sealed class ConcurrentHashList<T> : HashList<T>, IDisposable
         return ((IEnumerable<T>)snapshot).GetEnumerator();
     }
 
-#if NET5_0_OR_GREATER
     public override bool IsProperSubsetOf(IEnumerable<T> other)
     {
         _rwls.EnterReadLock();
@@ -221,7 +220,6 @@ public sealed class ConcurrentHashList<T> : HashList<T>, IDisposable
             _rwls.ExitReadLock();
         }
     }
-#endif
     #endregion
 
     #region Extra functionality

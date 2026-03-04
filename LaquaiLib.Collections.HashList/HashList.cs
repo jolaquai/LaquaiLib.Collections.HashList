@@ -237,9 +237,7 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
     public abstract T this[int index] { get; }
     #endregion
 
-#if NET5_0_OR_GREATER
-    #region IReadOnlySet<> impl
-
+    #region Set operations
     public abstract bool IsProperSubsetOf(IEnumerable<T> other);
     public abstract bool IsProperSupersetOf(IEnumerable<T> other);
     public abstract bool IsSubsetOf(IEnumerable<T> other);
@@ -247,7 +245,6 @@ public abstract class HashList<T> : ICollection<T>, IReadOnlyList<T>
     public abstract bool Overlaps(IEnumerable<T> other);
     public abstract bool SetEquals(IEnumerable<T> other);
     #endregion
-#endif
 
     /// <summary>
     /// Inserts <paramref name="item"/> at the specified <paramref name="index"/> in the list if it is not already present.
@@ -347,14 +344,12 @@ internal sealed class DefaultListHashList<T> : HashList<T>
     }
     public override IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
-#if NET5_0_OR_GREATER
     public override bool IsProperSubsetOf(IEnumerable<T> other) => _set.IsProperSubsetOf(other);
     public override bool IsProperSupersetOf(IEnumerable<T> other) => _set.IsProperSupersetOf(other);
     public override bool IsSubsetOf(IEnumerable<T> other) => _set.IsSubsetOf(other);
     public override bool IsSupersetOf(IEnumerable<T> other) => _set.IsSupersetOf(other);
     public override bool Overlaps(IEnumerable<T> other) => _set.Overlaps(other);
     public override bool SetEquals(IEnumerable<T> other) => _set.SetEquals(other);
-#endif
 }
 
 internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> equalityComparer) : HashList<T>
@@ -474,14 +469,17 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
     }
     public override IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
-#if NET5_0_OR_GREATER
     public override bool IsProperSubsetOf(IEnumerable<T> other)
     {
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
+#if NET5_0_OR_GREATER
         if (other is IReadOnlySet<T> ros)
             return _map.Count < ros.Count && _map.Keys.All(ros.Contains);
+#endif
+        if (other is ISet<T> set)
+            return _map.Count < set.Count && _map.Keys.All(set.Contains);
         if (_map.Count == 0)
             return other.Any();
         var s = new HashSet<T>(other, _map.Comparer);
@@ -494,8 +492,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
 
         if (_map.Count == 0)
             return false;
+#if NET5_0_OR_GREATER
         if (other is IReadOnlySet<T> ros)
             return ros.Count < _map.Count && ros.All(i => _map.ContainsKey(i));
+#endif
+        if (other is ISet<T> set)
+            return set.Count < _map.Count && set.All(i => _map.ContainsKey(i));
         var seen = new HashSet<T>(_map.Comparer);
         foreach (var item in other)
         {
@@ -512,8 +514,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
 
         if (_map.Count == 0)
             return true;
+#if NET5_0_OR_GREATER
         if (other is IReadOnlySet<T> ros)
             return _map.Keys.All(ros.Contains);
+#endif
+        if (other is ISet<T> set)
+            return _map.Keys.All(set.Contains);
         var s = new HashSet<T>(other, _map.Comparer);
         return _map.Keys.All(s.Contains);
     }
@@ -522,6 +528,12 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
+#if NET5_0_OR_GREATER
+        if (other is IReadOnlySet<T> ros && ros.Count > _map.Count)
+            return false;
+#endif
+        if (other is ISet<T> set && set.Count > _map.Count)
+            return false;
         foreach (var item in other)
             if (!_map.ContainsKey(item))
                 return false;
@@ -544,10 +556,13 @@ internal sealed class LinkedListHashList<T>(int capacity, IEqualityComparer<T> e
         if (other is null)
             throw new ArgumentNullException(nameof(other));
 
+#if NET5_0_OR_GREATER
         if (other is IReadOnlySet<T> ros)
             return ros.Count == _map.Count && _map.Keys.All(ros.Contains);
+#endif
+        if (other is ISet<T> set)
+            return set.Count == _map.Count && _map.Keys.All(set.Contains);
         var s = new HashSet<T>(other, _map.Comparer);
         return s.Count == _map.Count && _map.Keys.All(s.Contains);
     }
-#endif
 }
