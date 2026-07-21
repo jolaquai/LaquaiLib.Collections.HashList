@@ -619,6 +619,17 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsSubsetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
     public void IsSubsetOf_ViaEnumerable_ReturnsTrue()
     {
         // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsSubsetOf
@@ -626,6 +637,19 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         IEnumerable<int> other = new List<int> { 1, 2, 3 };
+        Assert.True(list.IsSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsSubsetOf_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" and "Hello" are equal under OrdinalIgnoreCase, so IsSubsetOf must return true.
+        // The ISet<T>/IReadOnlySet<T> fast paths previously called other.Contains(), using the
+        // wrong comparer and returning false. Verify the fix enforces the list's own comparer.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello", "world" };
         Assert.True(list.IsSubsetOf(other));
     }
 
@@ -683,6 +707,17 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void IsProperSubsetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsProperSubsetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
     public void IsProperSubsetOf_ViaEnumerable_ReturnsTrue()
     {
         // Exercises the IEnumerable<T> fallback path in LinkedListHashList.IsProperSubsetOf
@@ -690,6 +725,17 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         IEnumerable<int> other = new List<int> { 1, 2, 3 };
+        Assert.True(list.IsProperSubsetOf(other));
+    }
+
+    [Fact]
+    public void IsProperSubsetOf_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" ∈ other as "Hello" under OrdinalIgnoreCase, so IsProperSubsetOf must return true.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello", "world" };
         Assert.True(list.IsProperSubsetOf(other));
     }
 
@@ -727,6 +773,29 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         Assert.False(list.IsSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsSupersetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
+        Assert.True(list.IsSupersetOf(other));
+    }
+
+    [Fact]
+    public void IsSupersetOf_ViaISet_CountShortCircuit_ReturnsFalse()
+    {
+        // Exercises the ISet<T> count short-circuit in LinkedListHashList.IsSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2, 3 };
+        Assert.False(list.IsSupersetOf(other));
     }
 
     [Fact]
@@ -770,6 +839,18 @@ public class LinkedListHashListTests
         list.Add(1);
         list.Add(2);
         Assert.False(list.IsProperSupersetOf(new[] { 1, 2, 3 }));
+    }
+
+    [Fact]
+    public void IsProperSupersetOf_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.IsProperSupersetOf
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        list.Add(3);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
+        Assert.True(list.IsProperSupersetOf(other));
     }
 
     [Fact]
@@ -906,6 +987,17 @@ public class LinkedListHashListTests
     }
 
     [Fact]
+    public void SetEquals_ViaISet_ReturnsTrue()
+    {
+        // Exercises the ISet<T> fast path in LinkedListHashList.SetEquals
+        var list = Create<int>();
+        list.Add(1);
+        list.Add(2);
+        ISet<int> other = new SortedSet<int> { 1, 2 };
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
     public void SetEquals_ViaEnumerable_ReturnsTrue()
     {
         // Exercises the IEnumerable<T> fallback path in LinkedListHashList.SetEquals
@@ -914,6 +1006,40 @@ public class LinkedListHashListTests
         list.Add(2);
         IEnumerable<int> other = new List<int> { 1, 2 };
         Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void SetEquals_MismatchedComparer_UsesListComparer()
+    {
+        // HashList uses OrdinalIgnoreCase; other uses ordinal (case-sensitive).
+        // "hello" == "Hello" under OrdinalIgnoreCase, so SetEquals must return true.
+        var list = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        list.Add("hello");
+        ISet<string> other = new SortedSet<string>(StringComparer.Ordinal) { "Hello" };
+        Assert.True(list.SetEquals(other));
+    }
+
+    [Fact]
+    public void IsSupersetOf_MismatchedComparer_CountInflatedByDuplicates_ReturnsTrue()
+    {
+        // OrdinalIgnoreCase list {"hello"} should be superset of Ordinal SortedSet {"hello","Hello"}
+        // because under OrdinalIgnoreCase both "hello" and "Hello" are contained
+        var hashList = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        hashList.Add("hello");
+        // SortedSet uses default Ordinal comparer, so "hello" != "Hello" → Count=2
+        var other = new SortedSet<string> { "hello", "Hello" };
+        Assert.True(hashList.IsSupersetOf(other));
+    }
+
+    [Fact]
+    public void SetEquals_MismatchedComparer_DuplicatesInOther_ReturnsTrue()
+    {
+        // OrdinalIgnoreCase list {"hello"} should equal Ordinal SortedSet {"hello","Hello"}
+        // because under OrdinalIgnoreCase, both collapse to the same element
+        var hashList = HashList.Create<string>(StringComparer.OrdinalIgnoreCase, optimizeForRemove: true);
+        hashList.Add("hello");
+        var other = new SortedSet<string> { "hello", "Hello" };
+        Assert.True(hashList.SetEquals(other));
     }
 
     [Fact]
